@@ -6,3 +6,6 @@ client = MongoClient(Config.MONGO_URI)
 
 # Get default database from URI
 db = client.get_database()
+
+# Ensure unique email indexes
+db.users.create_index("email", unique=True)
