@@ -1,7 +1,10 @@
 from flask import Blueprint, request, jsonify  # type: ignore[import]
+from pymongo.errors import DuplicateKeyError # type: ignore[import]
+
 from app.db import db
 from app.utils.security import hash_password, check_password, generate_token
 from app.utils.decorators import token_required
+from app.models.user_model import create_user_document
 
 # Create a Blueprint for auth routes
 auth_bp = Blueprint("auth", __name__)
@@ -14,29 +17,39 @@ def signup():
 
     email = data.get("email")
     password = data.get("password")
+    username = data.get("username")
 
-    # Validate required fields
-    if not email or not password:
-        return jsonify({"error": "Email and password required"}), 400
+    # Validation
+    if not email or "@" not in email:
+        return jsonify({"error": "Valid email required"}), 400
 
-    # Check if user already exists in DB
-    existing_user = db.users.find_one({"email": email})
-    if existing_user:
-        return jsonify({"error": "User already exists"}), 400
+    if not password or len(password) < 6:
+        return jsonify({"error": "Password must be at least 6 characters"}), 400
 
-    # Hash password before storing (never store plain passwords)
+    if not username or len(username) < 3:
+        return jsonify({"error": "Username must be at least 3 characters"}), 400
+
+
+    # Normalize
+    email = email.lower().strip()
+    username = username.strip()
+
     hashed_password = hash_password(password)
 
     # Create user document
-    user = {
-        "email": email,
-        "password": hashed_password
-    }
+    user = create_user_document(email, hashed_password, username)
+
 
     # Insert user into database
-    db.users.insert_one(user)
+    try:
+        db.users.insert_one(user)
+    except DuplicateKeyError:
+        return jsonify({"error": "User already exists"}), 400
 
-    return jsonify({"message": "User created successfully"}), 201
+    return jsonify({
+        "message": "User created successfully",
+        "username": username
+    }), 201
 
 
 @auth_bp.route("/login", methods=["POST"])

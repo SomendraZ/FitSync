@@ -1,6 +1,6 @@
 import bcrypt  # type: ignore[import]
 import jwt  # type: ignore[import]
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from app.config import Config
 
 
@@ -21,7 +21,7 @@ def check_password(password, hashed):
 def generate_token(user_id):
     payload = {
         "user_id": str(user_id),  # Store user ID in token
-        "exp": datetime.utcnow() + timedelta(days=1)  # Token expires in 1 day
+        "exp": datetime.now(UTC) + timedelta(days=1)  # Token expires in 1 day
     }
 
     # Encode payload using secret key
