@@ -3,6 +3,7 @@ from flask_cors import CORS  # type: ignore[import]
 from app.db import db
 from app.routes.auth import auth_bp
 from app.routes.user import user_bp
+from app.routes.exercise import exercise_bp
 
 
 def create_app():
@@ -13,13 +14,14 @@ def create_app():
     CORS(app)
 
     # Register auth routes (signup, login, etc.)
-    # All routes inside auth_bp will be prefixed with /auth
     # Example: /auth/signup, /auth/login
     app.register_blueprint(auth_bp, url_prefix="/auth")
     # Register user routes (profile, etc.)
-    # All routes inside user_bp will be prefixed with /user
     # Example: /user/profile
     app.register_blueprint(user_bp, url_prefix="/user")
+    # Register exercise routes (get exercises, etc.)
+    # Example: /exercises?category=push or /exercises?muscle_group=chest
+    app.register_blueprint(exercise_bp, url_prefix="/exercises")
 
     @app.route("/")
     def home():
