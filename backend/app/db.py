@@ -7,5 +7,7 @@ client = MongoClient(Config.MONGO_URI)
 # Get default database from URI
 db = client.get_database()
 
-# Ensure unique email indexes
+# Create indexes for faster queries
 db.users.create_index("email", unique=True)
+db.exercises.create_index("category")
+db.exercises.create_index("muscle_group")
