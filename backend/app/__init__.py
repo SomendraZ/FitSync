@@ -2,6 +2,7 @@ from flask import Flask  # type: ignore[import]
 from flask_cors import CORS  # type: ignore[import]
 from app.db import db
 from app.routes.auth import auth_bp
+from app.routes.user import user_bp
 
 
 def create_app():
@@ -15,6 +16,10 @@ def create_app():
     # All routes inside auth_bp will be prefixed with /auth
     # Example: /auth/signup, /auth/login
     app.register_blueprint(auth_bp, url_prefix="/auth")
+    # Register user routes (profile, etc.)
+    # All routes inside user_bp will be prefixed with /user
+    # Example: /user/profile
+    app.register_blueprint(user_bp, url_prefix="/user")
 
     @app.route("/")
     def home():
