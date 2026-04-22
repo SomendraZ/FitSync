@@ -19,20 +19,28 @@ def signup():
     password = data.get("password")
     username = data.get("username")
 
-    # Validation
-    if not email or "@" not in email:
-        return jsonify({"error": "Valid email required"}), 400
-
-    if not password or len(password) < 6:
-        return jsonify({"error": "Password must be at least 6 characters"}), 400
-
-    if not username or len(username) < 3:
-        return jsonify({"error": "Username must be at least 3 characters"}), 400
-
-
     # Normalize
     email = email.lower().strip()
     username = username.strip()
+
+    # Check duplicate first
+    if db.users.find_one({"email": email}):
+        return jsonify({"error": "User already exists"}), 400
+
+    # Validation
+    errors = []
+
+    if not email or "@" not in email:
+        errors.append("Valid email required")
+
+    if not password or len(password) < 6:
+        errors.append("Password must be at least 6 characters")
+
+    if not username or len(username) < 3:
+        errors.append("Username must be at least 3 characters")
+
+    if errors:
+        return jsonify({"errors": errors}), 400
 
     hashed_password = hash_password(password)
 
