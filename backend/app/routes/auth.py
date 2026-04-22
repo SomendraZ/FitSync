@@ -86,11 +86,3 @@ def login():
         "message": "Login successful",
         "token": token
     }), 200
-
-@auth_bp.route("/profile", methods=["GET"])
-@token_required
-def profile(user_id):
-    return jsonify({
-        "message": "Access granted",
-        "user_id": user_id
-    })
